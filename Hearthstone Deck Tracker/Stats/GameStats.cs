@@ -375,7 +375,7 @@ namespace Hearthstone_Deck_Tracker.Stats
 
 		public bool HasHearthStatsDeckId => !string.IsNullOrEmpty(HearthStatsDeckId) && int.Parse(HearthStatsDeckId) > 0;
 
-		public HsReplayInfo HsReplay { get; set; }
+		public HsReplayInfo HsReplay { get; set; } = new HsReplayInfo();
 
 		public bool BelongsToDeckVerion(Deck deck) => PlayerDeckVersion == deck.Version
 													  || (HasHearthStatsDeckVersionId && HearthStatsDeckVersionId == deck.HearthStatsDeckVersionId)
@@ -497,6 +497,7 @@ namespace Hearthstone_Deck_Tracker.Stats
 		public bool ShouldSerializeFriendlyPlayerId() => FriendlyPlayerId > 0;
 		public bool ShouldSerializeScenarioId() => ScenarioId > 0;
 		public bool ShouldSerializeServerInfo() => ServerInfo != null;
+		public bool ShouldSerializeHsReplay() => HsReplay.UploadTries > 0 || HsReplay.Uploaded;
 
 		#region Obsolete
 
