@@ -41,22 +41,14 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 				Influx.OnGameUpload(game?.HsReplay.UploadTries ?? 1);
 				var tsParser = new TimeStampParser(game?.StartTime ?? DateTime.MinValue);
 				logLines = logLines.Select(tsParser.Parse).ToArray();
-				var metaData = UploadMetaData.Generate(logLines, gameMetaData, game);
-				var url = UploadUrl + "?" + metaData.ToQueryString();
-				Log.Info("Url: " + url);
-				var response = await Web.PostAsync(url, log, true, await ApiManager.GetUploadTokenHeader());
-				Log.Info(response.StatusCode.ToString());
+				var metaData = JsonConvert.SerializeObject(UploadMetaData.Generate(logLines, gameMetaData, game));
+				var response = await Web.PostAsync(UploadRequestUrl, metaData, true, true, await ApiManager.GetUploadTokenHeader());
 				using(var responseStream = response.GetResponseStream())
 				using(var reader = new StreamReader(responseStream))
 				{
 					dynamic json = JsonConvert.DeserializeObject(reader.ReadToEnd());
-					string id = json.shortid;
-					if(string.IsNullOrEmpty(id))
-					{
-						emptyId = true;
-						throw new Exception("Server returned empty replay id. " + json.msg);
-					}
-					result = UploadResult.Successful(id);
+					await Web.PutAsync((string)json.put_url, log, true, false);
+					result = UploadResult.Successful((string)json.upload_shortid);
 					if(game != null)
 					{
 						game.HsReplay = new HsReplayInfo(result.ReplayId);

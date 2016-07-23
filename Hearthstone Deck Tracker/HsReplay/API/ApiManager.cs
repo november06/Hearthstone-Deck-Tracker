@@ -27,7 +27,7 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 			try
 			{
 				var content = JsonConvert.SerializeObject(new {api_key = ApiKey});
-				var response = await Web.PostJsonAsync($"{TokensUrl}/", content, false);
+				var response = await Web.PostJsonAsync($"{TokensUrl}/", content, false, true);
 				using(var responseStream = response.GetResponseStream())
 				using(var reader = new StreamReader(responseStream))
 				{
@@ -56,7 +56,7 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 			{
 				var token = await GetUploadToken();
 				Log.Info("Getting claim url...");
-				var response = await Web.PostAsync(ClaimAccountUrl, string.Empty, false, new Header("Authorization", $"Token {token}"));
+				var response = await Web.PostAsync(ClaimAccountUrl, string.Empty, false, true, new Header("Authorization", $"Token {token}"));
 				using(var responseStream = response.GetResponseStream())
 				using(var reader = new StreamReader(responseStream))
 				{
@@ -77,7 +77,7 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 			Log.Info("Checking account status...");
 			try
 			{
-				var response = await Web.GetAsync(await GetAccountUrl());
+				var response = await Web.GetAsync(await GetAccountUrl(), true);
 				if(response.StatusCode == HttpStatusCode.OK)
 				{
 					using(var responseStream = response.GetResponseStream())

@@ -1,20 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web;
 using Hearthstone_Deck_Tracker.Enums;
 using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.HsReplay.Converter;
 using Hearthstone_Deck_Tracker.Stats;
+using Newtonsoft.Json;
 
 namespace Hearthstone_Deck_Tracker.HsReplay.API
 {
-	public class UploadMetaData : QueryStringable
+	public class UploadMetaData
 	{
 		private readonly GameStats _game;
 		private readonly GameMetaData _gameMetaData;
 		private int? _friendlyPlayerId;
+
+		[JsonIgnore]
 		public readonly string[] Log;
 
 		private UploadMetaData(string[] log, GameMetaData gameMetaData, GameStats game)
@@ -25,79 +26,79 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 			FillPlayerData();
 		}
 
-		[ApiField("server_ip")]
+		[JsonProperty("server_ip", NullValueHandling = NullValueHandling.Ignore)]
 		public string ServerIp => _gameMetaData?.ServerInfo?.Address;
 
-		[ApiField("server_port")]
+		[JsonProperty("server_port", NullValueHandling = NullValueHandling.Ignore)]
 		public string ServerPort => _gameMetaData?.ServerInfo?.Port.ToString();
 
-		[ApiField("game_handle")]
+		[JsonProperty("game_handle", NullValueHandling = NullValueHandling.Ignore)]
 		public string GameHandle => _gameMetaData?.ServerInfo?.GameHandle.ToString();
 
-		[ApiField("client_handle")]
+		[JsonProperty("client_handle", NullValueHandling = NullValueHandling.Ignore)]
 		public string ClientHandle => _gameMetaData?.ServerInfo?.ClientHandle.ToString();
 
-		[ApiField("reconnecting")]
+		[JsonProperty("reconnecting", NullValueHandling = NullValueHandling.Ignore)]
 		public string Reconnected => _gameMetaData?.Reconnected ?? false ? "true" : null;
 
-		[ApiField("resumable")]
+		[JsonProperty("resumable", NullValueHandling = NullValueHandling.Ignore)]
 		public string Resumable => _gameMetaData?.ServerInfo?.Resumable.ToString().ToLower();
 
-		[ApiField("spectator_password")]
+		[JsonProperty("spectator_password", NullValueHandling = NullValueHandling.Ignore)]
 		public string SpectatePassword => _gameMetaData?.ServerInfo?.SpectatorPassword;
 
-		[ApiField("aurora_password")]
+		[JsonProperty("aurora_password", NullValueHandling = NullValueHandling.Ignore)]
 		public string AuroraPassword => _gameMetaData?.ServerInfo?.AuroraPassword;
 
-		[ApiField("server_version")]
+		[JsonProperty("server_version", NullValueHandling = NullValueHandling.Ignore)]
 		public string ServerVersion => _gameMetaData?.ServerInfo?.Version;
 
-		[ApiField("match_start")]
+		[JsonProperty("match_start", NullValueHandling = NullValueHandling.Ignore)]
 		public string MatchStart => _game?.StartTime != DateTime.MinValue ? _game?.StartTime.ToString("o") : null;
 
-		[ApiField("build")]
+		[JsonProperty("build", NullValueHandling = NullValueHandling.Ignore)]
 		public int? HearthstoneBuild => _gameMetaData?.HearthstoneBuild ?? _game?.HearthstoneBuild ?? (_game != null ? BuildDates.GetByDate(_game.StartTime) : null);
 
-		[ApiField("game_type")]
+		[JsonProperty("game_type", NullValueHandling = NullValueHandling.Ignore)]
 		public int? GameType => _game != null ? (int)HearthDbConverter.GetGameType(_game.GameMode, _game.Format) : (int?)null;
 
-		[ApiField("spectator_mode")]
+		[JsonProperty("spectator_mode", NullValueHandling = NullValueHandling.Ignore)]
 		public string SpectatorMode => _game?.GameMode == GameMode.Spectator ? "true" : null;
 
-		[ApiField("friendly_player")]
+		[JsonProperty("friendly_player", NullValueHandling = NullValueHandling.Ignore)]
 		public int? FriendlyPlayerId => _game?.FriendlyPlayerId > 0 ? _game.FriendlyPlayerId : (_friendlyPlayerId > 0 ? _friendlyPlayerId : null);
 
-		[ApiField("scenario_id")]
+		[JsonProperty("scenario_id", NullValueHandling = NullValueHandling.Ignore)]
 		public int? ScenarioId => _game?.ScenarioId ?? _gameMetaData?.ServerInfo?.Mission;
 
-		[ApiField("player_1")]
+		[JsonProperty("player_1", NullValueHandling = NullValueHandling.Ignore)]
 		public Player Player1 { get; set; } = new Player();
 
-		[ApiField("player_2")]
+		[JsonProperty("player_2", NullValueHandling = NullValueHandling.Ignore)]
 		public Player Player2 { get; set; } = new Player();
 
 
-		public class Player : QueryStringable
+		public class Player
 		{
-			[ApiField("rank")]
+			[JsonProperty("rank", NullValueHandling = NullValueHandling.Ignore)]
 			public int? Rank{ get; set; }
 
-			[ApiField("legendrank")]
+			[JsonProperty("legendrank", NullValueHandling = NullValueHandling.Ignore)]
 			public int? LegendRank { get; set; }
 
-			[ApiField("stars")]
+			[JsonProperty("stars", NullValueHandling = NullValueHandling.Ignore)]
 			public int? Stars { get; set; }
 
-			[ApiField("wins")]
+			[JsonProperty("wins", NullValueHandling = NullValueHandling.Ignore)]
 			public int? Wins { get; set; }
 
-			[ApiField("losses")]
+			[JsonProperty("losses", NullValueHandling = NullValueHandling.Ignore)]
 			public int? Losses { get; set; }
 
-			[ApiField("deck")]
+			[JsonProperty("deck", NullValueHandling = NullValueHandling.Ignore)]
 			public string DeckList { get; set; }
 
-			[ApiField("cardback")]
+			[JsonProperty("cardback", NullValueHandling = NullValueHandling.Ignore)]
 			public int? Cardback { get; set; }
 		}
 
@@ -164,39 +165,5 @@ namespace Hearthstone_Deck_Tracker.HsReplay.API
 		public static UploadMetaData Generate(string[] logLines, GameMetaData gameMetaData, GameStats game) 
 			=> new UploadMetaData(logLines, gameMetaData, game);
 
-	}
-
-	public class QueryStringable
-	{
-		private IEnumerable<string> GetQueryFields()
-		{
-			foreach(var prop in GetType().GetProperties().Where(x => x.GetCustomAttributes(typeof(ApiFieldAttribute), false).Any()))
-			{
-				var value = prop.GetValue(this);
-				if(value == null)
-					continue;
-				var field = ((ApiFieldAttribute)prop.GetCustomAttributes(typeof(ApiFieldAttribute), false).First()).Name;
-				var sub = value as QueryStringable;
-				if(sub != null)
-				{
-					foreach(var subField in sub.GetQueryFields())
-						yield return $"{field}.{subField}";
-				}
-				else
-					yield return $"{field}={HttpUtility.UrlEncode(value.ToString())}";
-			}
-		}
-
-		public string ToQueryString() => string.Join("&", GetQueryFields());
-	}
-
-	public class ApiFieldAttribute : Attribute
-	{
-		public ApiFieldAttribute(string name)
-		{
-			Name = name;
-		}
-
-		public string Name { get; }
 	}
 }
