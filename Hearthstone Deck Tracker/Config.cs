@@ -558,6 +558,9 @@ namespace Hearthstone_Deck_Tracker
 		[DefaultValue(true)]
 		public bool HsReplayUploadSpectator = true;
 
+		[DefaultValue("00000000-0000-0000-0000-000000000000")]
+		public string Id = Guid.Empty.ToString();
+
 		[DefaultValue(-1)]
 		public int IgnoreNewsId = -1;
 
@@ -1220,6 +1223,11 @@ namespace Hearthstone_Deck_Tracker
 				}
 			}
 #endif
+			if(Instance.Id == Guid.Empty.ToString())
+			{
+				Instance.Id = Guid.NewGuid().ToString();
+				Save();
+			}
 		}
 
 		public void ResetAll()

@@ -16,7 +16,9 @@ namespace Hearthstone_Deck_Tracker.Utility.Analytics
 		{
 			if(!Config.Instance.GoogleAnalytics)
 				return;
-			WritePoint(new InfluxPointBuilder("hdt_app_start").Tag("version", version.ToVersionString()).Tag("login_type", loginType).Tag("new", isNew).Build());
+			WritePoint(new InfluxPointBuilder("hdt_app_start")
+				.Tag("version", version.ToVersionString()).Tag("login_type", loginType).Tag("new", isNew)
+				.Tag("auto_upload", Config.Instance.HsReplayAutoUpload).Tag("id", Config.Instance.Id).Build());
 		}
 
 
