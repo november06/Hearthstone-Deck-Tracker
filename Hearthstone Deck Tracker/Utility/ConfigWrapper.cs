@@ -3,6 +3,7 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Windows;
+using Hearthstone_Deck_Tracker.Utility.Analytics;
 
 #endregion
 
@@ -197,6 +198,7 @@ namespace Hearthstone_Deck_Tracker.Utility
 			{
 				Config.Instance.HsReplayAutoUpload = value;
 				Config.Save();
+				Influx.OnHsReplayAutoUploadChanged(value);
 			}
 		}
 

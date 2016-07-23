@@ -21,6 +21,12 @@ namespace Hearthstone_Deck_Tracker.Utility.Analytics
 				.Tag("auto_upload", Config.Instance.HsReplayAutoUpload).Tag("id", Config.Instance.Id).Build());
 		}
 
+		public static void OnHsReplayAutoUploadChanged(bool newState)
+		{
+			if(!Config.Instance.GoogleAnalytics)
+				return;
+			WritePoint(new InfluxPointBuilder("hdt_hsreplay_autoupload_changed").Tag("new_state", newState).Build());
+		}
 
 		public static void OnGameEnd(BnetGameType gameType)
 		{
