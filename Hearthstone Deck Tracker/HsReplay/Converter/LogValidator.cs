@@ -35,30 +35,14 @@ namespace Hearthstone_Deck_Tracker.HsReplay.Converter
 				{
 					createGameLine = i;
 					Log.Info($"Found 'CREATE_GAME' at line {i+1}");
-					if(i > 100)
-					{
-						result.Valid = false;
-						Log.Warn($"Invalid log file. {result}");
-						return result;
-					}
 					break;
 				}
 			}
 			if(createGameLine == -1)
 			{
-				var debugPrintPowerLine = log.FirstOrDefault(x => x.Contains("DebugPrintPower"));
-				if(debugPrintPowerLine == null)
-				{
-					result.Valid = false;
-					Log.Warn($"Log contains no 'DebugPrintPower'. {result}");
-					return result;
-				}
-				var createLine = new string(debugPrintPowerLine.TakeWhile(x => x != '-').ToArray()) + "- ";
-				if(result.IsPowerTaskList)
-					createLine += "    ";
-				createLine += "CREATE_GAME";
-				log.Insert(0, createLine);
-				Log.Info("Inserted 'CREATE_GAME' at line 0.");
+				result.Valid = false;
+				Log.Error($"Log contains no 'CREATE_GAME'. {result}");
+				return result;
 			}
 			Log.Info(result.ToString());
 			return result;
