@@ -377,6 +377,10 @@ namespace Hearthstone_Deck_Tracker.Stats
 
 		public HsReplayInfo HsReplay { get; set; } = new HsReplayInfo();
 
+		public string ReplayState => !HasReplayFile ? "N/A" : HsReplay.Uploaded ? "Uploaded" : HsReplay.Unsupported ? "Unsupported" : "-";
+
+		public void UpdateReplayState() => OnPropertyChanged(nameof(ReplayState));
+
 		public bool BelongsToDeckVerion(Deck deck) => PlayerDeckVersion == deck.Version
 													  || (HasHearthStatsDeckVersionId && HearthStatsDeckVersionId == deck.HearthStatsDeckVersionId)
 													  || (!HasHearthStatsDeckVersionId && HasHearthStatsDeckId && HearthStatsDeckId == deck.HearthStatsId)

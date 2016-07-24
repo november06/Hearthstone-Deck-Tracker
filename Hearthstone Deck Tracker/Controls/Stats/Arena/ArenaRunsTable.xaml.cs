@@ -100,7 +100,12 @@ namespace Hearthstone_Deck_Tracker.Controls.Stats.Arena
 			ArenaStats.Instance.UpdateArenaStats();
 		}
 
-		private async void ButtonShowReplay_OnClick(object sender, RoutedEventArgs e) => await HsReplayManager.ShowReplay(SelectedGame, true);
+		private async void ButtonShowReplay_OnClick(object sender, RoutedEventArgs e)
+		{
+			var game = SelectedGame;
+			await HsReplayManager.ShowReplay(game, true);
+			game.UpdateReplayState();
+		}
 
 		private void ButtonShowOppDeck_OnClick(object sender, RoutedEventArgs e)
 		{
