@@ -16,6 +16,8 @@
 
 		public int UploadTries { get; set; }
 
+		public bool Unsupported { get; set; }
+
 		public bool Uploaded => !string.IsNullOrEmpty(UploadId);
 
 		public string Url => $"{Constants.BaseUrl}/uploads/upload/{UploadId}";

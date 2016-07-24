@@ -32,7 +32,7 @@ namespace Hearthstone_Deck_Tracker.HsReplay
 				return true;
 			}
 			Action<ReplayProgress> setToastStatus = null;
-			if(game.HasReplayFile && (!game.HsReplay?.Uploaded ?? true))
+			if(game.HasReplayFile && !game.HsReplay.Uploaded)
 			{
 				if(showToast)
 					setToastStatus = ToastManager.ShowReplayProgressToast();
@@ -42,14 +42,14 @@ namespace Hearthstone_Deck_Tracker.HsReplay
 				{
 					var result = await LogUploader.Upload(log.ToArray(), null, game);
 					if(result.Success)
-					{
 						game.HsReplay = new HsReplayInfo(result.ReplayId);
-						if(DefaultDeckStats.Instance.DeckStats.Any(x => x.DeckId == game.DeckId))
-							DefaultDeckStats.Save();
-						else
-							DeckStatsList.Save();
-					}
 				}
+				else
+					game.HsReplay.Unsupported = true;
+				if(DefaultDeckStats.Instance.DeckStats.Any(x => x.DeckId == game.DeckId))
+					DefaultDeckStats.Save();
+				else
+					DeckStatsList.Save();
 			}
 			if(game.HsReplay?.Uploaded ?? false)
 			{
